@@ -1,5 +1,4 @@
 from config import db
-from models.market_part_quantity import MarketPartQuantity
 
 class Market(db.Model):
     id = db.Column(db.Integer, primary_key=True)
