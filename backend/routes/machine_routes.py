@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from backend.models.operation import Operation
+from models.operation import Operation
 from models.machine import Machine
 from models.workstation import Workstation
 from config import db
