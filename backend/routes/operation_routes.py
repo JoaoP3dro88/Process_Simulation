@@ -19,8 +19,11 @@ def get_operation(id):
 # POST /operations - Criar operação
 @operation_bp.route('/operations', methods=['POST'])
 def create_operation():
-    data = request.json
-    operation = Operation(name=data['name'])
+    data = request.json or {}
+    if 'name' not in data or 'duration' not in data:
+        return jsonify({"error": "Fields 'name' and 'duration' are required"}), 400
+
+    operation = Operation(name=data['name'], duration=data['duration'])
     db.session.add(operation)
     db.session.commit()
     return jsonify(operation.to_json()), 201
@@ -29,8 +32,10 @@ def create_operation():
 @operation_bp.route('/operations/<int:id>', methods=['PUT'])
 def update_operation(id):
     operation = Operation.query.get_or_404(id)
-    data = request.json
+    data = request.json or {}
     operation.name = data.get('name', operation.name)
+    if 'duration' in data:
+        operation.duration = data['duration']
     db.session.commit()
     return jsonify(operation.to_json())
 

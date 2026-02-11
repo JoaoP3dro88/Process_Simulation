@@ -20,8 +20,9 @@ def get_workflow(id):
 # POST /workflows - Criar workflow
 @workflow_bp.route('/workflows', methods=['POST'])
 def create_workflow():
-    data = request.json
-    workflow = Workflow(name=data['name'])
+    # O modelo Workflow atualmente não tem coluna `name`.
+    # Mantemos o endpoint, mas não exigimos payload.
+    workflow = Workflow()
     db.session.add(workflow)
     db.session.commit()
     return jsonify(workflow.to_json()), 201
@@ -30,9 +31,8 @@ def create_workflow():
 @workflow_bp.route('/workflows/<int:id>', methods=['PUT'])
 def update_workflow(id):
     workflow = Workflow.query.get_or_404(id)
-    data = request.json
-    workflow.name = data.get('name', workflow.name)
-    db.session.commit()
+    # Não há campos escalares para atualizar no modelo atual.
+    # Se no futuro você adicionar um campo (ex: name), pode reativar aqui.
     return jsonify(workflow.to_json())
 
 # DELETE /workflows/<id> - Deletar workflow
@@ -54,11 +54,17 @@ def get_workflow_operations(id):
 @workflow_bp.route('/workflows/<int:id>/operations', methods=['POST'])
 def add_operation_to_workflow(id):
     workflow = Workflow.query.get_or_404(id)
-    data = request.json
+    data = request.json or {}
+    if 'operation_id' not in data:
+        return jsonify({"error": "Field 'operation_id' is required"}), 400
+
     operation = Operation.query.get_or_404(data['operation_id'])
+    if operation in workflow.operations:
+        return jsonify({"message": "Operation already exists in workflow"}), 400
+
     workflow.operations.append(operation)
     db.session.commit()
-    return jsonify({"message": "Operation added to workflow"})
+    return jsonify(workflow.to_json())
 
 # DELETE /workflows/<id>/operations/<operation_id> - Remover operação
 @workflow_bp.route('/workflows/<int:id>/operations/<int:operation_id>', methods=['DELETE'])
