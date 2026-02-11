@@ -7,3 +7,9 @@ class MarketPartQuantity(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
 
     part = db.relationship("Part")
+
+    def to_json(self):
+        return {
+            "part": self.part.id,
+            "quantity": self.quantity
+        }
