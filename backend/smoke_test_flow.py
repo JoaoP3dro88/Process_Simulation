@@ -32,7 +32,7 @@ def main() -> None:
         c = app.test_client()
 
         # 1) Operation
-        op_resp = c.post("/operations", json={"name": "Cut", "duration": 1.5})
+        op_resp = c.post("/operations", json={"name": "1010", "duration": 30})
         _print("create operation", op_resp)
 
         # 2) Workflow
@@ -49,12 +49,12 @@ def main() -> None:
         _print("link dup operation->workflow", link_dup)
 
         # 4) Part with mandatory workflow_id (1:1)
-        part_resp = c.post("/parts", json={"name": "PartA", "workflow_id": wf_id})
+        part_resp = c.post("/parts", json={"name": "Nozzle", "workflow_id": wf_id})
         _print("create part", part_resp)
         part_id = part_resp.get_json()["id"]
 
         # 5) Product
-        prod_resp = c.post("/products", json={"name": "Prod1"})
+        prod_resp = c.post("/products", json={"name": "CRIN"})
         _print("create product", prod_resp)
         prod_id = prod_resp.get_json()["id"]
 
@@ -62,9 +62,9 @@ def main() -> None:
         attach_resp = c.post(f"/products/{prod_id}/parts", json={"part_id": part_id})
         _print("attach part->product", attach_resp)
 
-        # Detach
-        detach_resp = c.delete(f"/products/{prod_id}/parts/{part_id}")
-        _print("detach part<-product", detach_resp)
+        # # Detach
+        # detach_resp = c.delete(f"/products/{prod_id}/parts/{part_id}")
+        # _print("detach part<-product", detach_resp)
 
 
 if __name__ == "__main__":
