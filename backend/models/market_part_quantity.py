@@ -10,6 +10,8 @@ class MarketPartQuantity(db.Model):
 
     def to_json(self):
         return {
+            "market_id": self.market_id,
+            "part_id": self.part_id,
             "part": self.part.id,
             "quantity": self.quantity
         }

@@ -31,4 +31,63 @@ export const api = {
   // parts (workflow obrigatório no seu backend)
   listParts: () => request('/parts'),
   createPart: (payload) => request('/parts', { method: 'POST', body: JSON.stringify(payload) }),
+
+  // products
+  listProducts: () => request('/products'),
+  createProduct: (payload) => request('/products', { method: 'POST', body: JSON.stringify(payload) }),
+  addPartToProduct: (productId, partId) =>
+    request(`/products/${productId}/parts`, { method: 'POST', body: JSON.stringify({ part_id: partId }) }),
+  removePartFromProduct: (productId, partId) =>
+    request(`/products/${productId}/parts/${partId}`, { method: 'DELETE' }),
+
+  // processes
+  listProcesses: () => request('/processes'),
+  createProcess: (payload) => request('/processes', { method: 'POST', body: JSON.stringify(payload) }),
+  deleteProcess: (id) => request(`/processes/${id}`, { method: 'DELETE' }),
+  listProcessWorkstations: (processId) => request(`/processes/${processId}/workstations`),
+  listProcessParts: (processId) => request(`/processes/${processId}/parts`),
+
+  // workstations
+  listWorkstations: () => request('/workstations'),
+  createWorkstation: (payload) => request('/workstations', { method: 'POST', body: JSON.stringify(payload) }),
+  updateWorkstation: (id, payload) => request(`/workstations/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteWorkstation: (id) => request(`/workstations/${id}`, { method: 'DELETE' }),
+  listWorkstationMachines: (id) => request(`/workstations/${id}/machines`),
+  listWorkstationOperators: (id) => request(`/workstations/${id}/operators`),
+  addOperatorToWorkstation: (id, operatorId) =>
+    request(`/workstations/${id}/operators`, { method: 'POST', body: JSON.stringify({ operator_id: operatorId }) }),
+  removeOperatorFromWorkstation: (id, operatorId) => request(`/workstations/${id}/operators/${operatorId}`, { method: 'DELETE' }),
+
+  // machines
+  listMachines: () => request('/machines'),
+  createMachine: (payload) => request('/machines', { method: 'POST', body: JSON.stringify(payload) }),
+  deleteMachine: (id) => request(`/machines/${id}`, { method: 'DELETE' }),
+  listMachineOperations: (id) => request(`/machines/${id}/operations`),
+  getMachineWorkstation: (id) => request(`/machines/${id}/workstation`),
+  addOperationToMachine: (id, operationId) =>
+    request(`/machines/${id}/operations`, { method: 'POST', body: JSON.stringify({ operation_id: operationId }) }),
+  removeOperationFromMachine: (id, operationId) => request(`/machines/${id}/operations/${operationId}`, { method: 'DELETE' }),
+  moveMachineToWorkstation: (id, workstationId) =>
+    request(`/machines/${id}/workstation`, { method: 'PUT', body: JSON.stringify({ workstation_id: workstationId }) }),
+
+  // operators
+  listOperators: () => request('/operators'),
+  createOperator: (payload) => request('/operators', { method: 'POST', body: JSON.stringify(payload) }),
+  deleteOperator: (id) => request(`/operators/${id}`, { method: 'DELETE' }),
+  listOperatorWorkstations: (id) => request(`/operators/${id}/workstations`),
+
+  // markets
+  listMarkets: () => request('/markets'),
+  createMarket: (payload) => request('/markets', { method: 'POST', body: JSON.stringify(payload) }),
+  updateMarket: (id, payload) => request(`/markets/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteMarket: (id) => request(`/markets/${id}`, { method: 'DELETE' }),
+  listMarketPartDemands: (id) => request(`/markets/${id}/part-demands`),
+  updateMarketLastProcess: (id, lastProcessId) =>
+    request(`/markets/${id}/last-process`, { method: 'PUT', body: JSON.stringify({ last_process_id: lastProcessId }) }),
+  updateMarketNextProcess: (id, nextProcessId) =>
+    request(`/markets/${id}/next-process`, { method: 'PUT', body: JSON.stringify({ next_process_id: nextProcessId }) }),
+
+  // market-part-quantities
+  listMarketPartQuantities: () => request('/market-part-quantities'),
+  createMarketPartQuantity: (payload) => request('/market-part-quantities', { method: 'POST', body: JSON.stringify(payload) }),
 }
