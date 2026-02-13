@@ -51,12 +51,13 @@ def get_machine_operations(id):
     machine = Machine.query.get_or_404(id)
     return jsonify([op.to_json() for op in machine.operations])
 
-# GET /machines/<id>/workstations - Listar workstations da máquina
-@machine_bp.route('/machines/<int:id>/workstations', methods=['GET'])
-def get_machine_workstations(id):
+# GET /machines/<id>/workstation - Buscar workstation da máquina (N:1)
+@machine_bp.route('/machines/<int:id>/workstation', methods=['GET'])
+def get_machine_workstation(id):
     machine = Machine.query.get_or_404(id)
-    # Supondo que exista uma relação 'workstations' em Machine
-    return jsonify([ws.to_json() for ws in machine.workstations])
+    if not machine.workstation_id:
+        return jsonify(None), 200
+    return jsonify(machine.workstation.to_json())
 
 # POST /machines/<id>/operations - Adicionar operação à máquina
 @machine_bp.route('/machines/<int:id>/operations', methods=['POST'])
