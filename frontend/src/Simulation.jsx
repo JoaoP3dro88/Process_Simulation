@@ -118,7 +118,9 @@ export default function Simulation({ onBack, products, parts, machines }) {
       <div className="topbar">
         <div className="topbar-title">Simulação</div>
         <div className="topbar-actions">
-          <button className="btn" onClick={onBack} disabled={loading}>Voltar</button>
+          {onBack ? (
+            <button className="btn" onClick={onBack} disabled={loading}>Voltar</button>
+          ) : null}
         </div>
       </div>
 

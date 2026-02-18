@@ -210,6 +210,37 @@ button:disabled {
   background: #0b0f17;
 }
 
+.table-wrap {
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid #1d2940;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th,
+.table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid #1d2940;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  background: #070a11;
+  z-index: 1;
+}
+
+.table tr:hover td {
+  background: #0f1625;
+}
+
 .pre {
   margin: 10px 0 0;
   padding: 10px;
