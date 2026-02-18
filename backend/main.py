@@ -10,6 +10,7 @@ from routes.process_routes import process_bp
 from routes.workflow_routes import workflow_bp
 from routes.workstation_routes import workstation_bp
 from routes.market_part_quantity_routes import mpq_bp
+from routes.simulation_routes import simulation_bp
 
 # Registra todos os blueprints
 app.register_blueprint(operator_bp)
@@ -22,6 +23,7 @@ app.register_blueprint(process_bp)
 app.register_blueprint(workflow_bp)
 app.register_blueprint(workstation_bp)
 app.register_blueprint(mpq_bp)
+app.register_blueprint(simulation_bp)
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True, use_reloader=False)

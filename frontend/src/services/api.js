@@ -17,6 +17,16 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  // simulation
+  createSimulationOrder: (payload) => request('/simulation/orders', { method: 'POST', body: JSON.stringify(payload) }),
+  listSimulationOrders: () => request('/simulation/orders'),
+  listSimulationJobs: (orderId) => request(`/simulation/orders/${orderId}/jobs`),
+  viewSimulationMachines: (orderId) => request(`/simulation/orders/${orderId}/machines`),
+  startSimulationMachine: (orderId, machineId, payload = {}) =>
+    request(`/simulation/orders/${orderId}/machines/${machineId}/start`, { method: 'POST', body: JSON.stringify(payload) }),
+  finishSimulationJob: (orderId, jobId) =>
+    request(`/simulation/orders/${orderId}/jobs/${jobId}/finish`, { method: 'POST', body: JSON.stringify({}) }),
+
   // operations
   listOperations: () => request('/operations'),
   createOperation: (payload) => request('/operations', { method: 'POST', body: JSON.stringify(payload) }),
@@ -27,6 +37,12 @@ export const api = {
   listWorkflowOperations: (workflowId) => request(`/workflows/${workflowId}/operations`),
   addOperationToWorkflow: (workflowId, operationId) =>
     request(`/workflows/${workflowId}/operations`, { method: 'POST', body: JSON.stringify({ operation_id: operationId }) }),
+
+  addOperationToWorkflowWithSequence: (workflowId, operationId, sequence) =>
+    request(`/workflows/${workflowId}/operations`, {
+      method: 'POST',
+      body: JSON.stringify({ operation_id: operationId, sequence }),
+    }),
 
   // parts (workflow obrigatório no seu backend)
   listParts: () => request('/parts'),

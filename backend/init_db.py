@@ -12,6 +12,11 @@ from models.product import Product  # noqa: F401
 from models.market import Market  # noqa: F401
 from models.market_part_quantity import MarketPartQuantity  # noqa: F401
 
+# simulation models
+from models.simulation_order import SimulationOrder  # noqa: F401
+from models.simulation_order_item import SimulationOrderItem  # noqa: F401
+from models.simulation_job import SimulationJob  # noqa: F401
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

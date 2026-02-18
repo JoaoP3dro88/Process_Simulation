@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { api } from './services/api'
+import Simulation from './Simulation'
 
 function Section({ title, children, id }) {
   return (
@@ -17,6 +18,11 @@ function Nav({ items }) {
   return (
     <nav className="nav">
       <div className="nav-title">CRUD Tester</div>
+      <div className="nav-actions">
+        <button className="btn" onClick={() => window.dispatchEvent(new CustomEvent('open-simulation'))}>
+          Simulação
+        </button>
+      </div>
       <div className="nav-items">
         {items.map((it) => (
           <a key={it.id} href={`#${it.id}`} className="nav-link">{it.label}</a>
@@ -32,6 +38,7 @@ function toNumber(value) {
 }
 
 export default function App() {
+  const [screen, setScreen] = useState('crud')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [ok, setOk] = useState('')
@@ -76,6 +83,7 @@ export default function App() {
   // relationship actions
   const [selectedWorkflowId, setSelectedWorkflowId] = useState('')
   const [selectedOperationId, setSelectedOperationId] = useState('')
+  const [workflowOpSequence, setWorkflowOpSequence] = useState('')
   const [selectedProductId, setSelectedProductId] = useState('')
   const [selectedPartId, setSelectedPartId] = useState('')
   const [selectedWorkstationId, setSelectedWorkstationId] = useState('')
@@ -189,6 +197,25 @@ export default function App() {
     refreshAll()
   }, [])
 
+  useEffect(() => {
+    function onOpenSimulation() {
+      setScreen('simulation')
+    }
+    window.addEventListener('open-simulation', onOpenSimulation)
+    return () => window.removeEventListener('open-simulation', onOpenSimulation)
+  }, [])
+
+  if (screen === 'simulation') {
+    return (
+      <Simulation
+        onBack={() => setScreen('crud')}
+        products={products}
+        parts={parts}
+        machines={machines}
+      />
+    )
+  }
+
   async function onCreateOperation(e) {
     e.preventDefault()
     setError('')
@@ -231,8 +258,15 @@ export default function App() {
     try {
       const wfId = toNumber(selectedWorkflowId)
       const opId = toNumber(selectedOperationId)
-      await api.addOperationToWorkflow(wfId, opId)
+      const seqRaw = String(workflowOpSequence ?? '').trim()
+      if (seqRaw === '') {
+        await api.addOperationToWorkflow(wfId, opId)
+      } else {
+        const sequence = toNumber(seqRaw)
+        await api.addOperationToWorkflowWithSequence(wfId, opId, sequence)
+      }
       setOk('Operation vinculada ao Workflow')
+      setWorkflowOpSequence('')
       await refreshAll()
     } catch (e) {
       setError(e.message)
@@ -647,12 +681,31 @@ export default function App() {
                 <option key={o.id} value={String(o.id)}>{o.label}</option>
               ))}
             </select>
+            <input
+              value={workflowOpSequence}
+              onChange={(e) => setWorkflowOpSequence(e.target.value)}
+              placeholder="Sequence (opcional)"
+              type="number"
+              step="1"
+              min="0"
+              style={{ maxWidth: 160 }}
+            />
             <button type="submit" disabled={loading}>Vincular</button>
           </form>
 
           {selectedWorkflow ? (
             <div className="muted">
-              operations no workflow (ids): {Array.isArray(selectedWorkflow.operations) ? selectedWorkflow.operations.join(', ') : ''}
+              {Array.isArray(selectedWorkflow.operations_detailed) && selectedWorkflow.operations_detailed.length > 0 ? (
+                <>
+                  ordem das operations: {selectedWorkflow.operations_detailed
+                    .slice()
+                    .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
+                    .map((x) => `${x.sequence}: ${x.operation?.name ?? x.operation?.id}`)
+                    .join(' | ')}
+                </>
+              ) : (
+                <>operations no workflow (ids): {Array.isArray(selectedWorkflow.operations) ? selectedWorkflow.operations.join(', ') : ''}</>
+              )}
             </div>
           ) : null}
 

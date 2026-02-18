@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.workflow import Workflow
 from models.operation import Operation
+from relations.workflow_operation import WorkflowOperation
 from config import db
 
 workflow_bp = Blueprint('workflow_bp', __name__)
@@ -47,8 +48,10 @@ def delete_workflow(id):
 @workflow_bp.route('/workflows/<int:id>/operations', methods=['GET'])
 def get_workflow_operations(id):
     workflow = Workflow.query.get_or_404(id)
-    # Supondo que exista uma relação 'operations' em Workflow
-    return jsonify([op.to_json() for op in workflow.operations])
+    return jsonify([
+        {"operation": wo.operation.to_json(), "sequence": wo.sequence}
+        for wo in workflow.workflow_operations
+    ])
 
 # POST /workflows/<id>/operations - Adicionar operação ao workflow
 @workflow_bp.route('/workflows/<int:id>/operations', methods=['POST'])
@@ -59,10 +62,18 @@ def add_operation_to_workflow(id):
         return jsonify({"error": "Field 'operation_id' is required"}), 400
 
     operation = Operation.query.get_or_404(data['operation_id'])
-    if operation in workflow.operations:
+    if any(wo.operation_id == operation.id for wo in workflow.workflow_operations):
         return jsonify({"message": "Operation already exists in workflow"}), 400
 
-    workflow.operations.append(operation)
+    # default: append to end if sequence not provided
+    if 'sequence' in data and data['sequence'] is not None:
+        sequence = int(data['sequence'])
+    else:
+        max_seq = max([wo.sequence for wo in workflow.workflow_operations], default=-1)
+        sequence = max_seq + 1
+
+    wo = WorkflowOperation(workflow_id=workflow.id, operation_id=operation.id, sequence=sequence)
+    db.session.add(wo)
     db.session.commit()
     return jsonify(workflow.to_json())
 
@@ -70,9 +81,10 @@ def add_operation_to_workflow(id):
 @workflow_bp.route('/workflows/<int:id>/operations/<int:operation_id>', methods=['DELETE'])
 def remove_operation_from_workflow(id, operation_id):
     workflow = Workflow.query.get_or_404(id)
-    operation = Operation.query.get_or_404(operation_id)
-    if operation in workflow.operations:
-        workflow.operations.remove(operation)
+    Operation.query.get_or_404(operation_id)
+    wo = WorkflowOperation.query.get((workflow.id, operation_id))
+    if wo:
+        db.session.delete(wo)
         db.session.commit()
         return jsonify({"message": "Operation removed from workflow"})
     else:
